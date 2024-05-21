@@ -321,3 +321,8 @@ func Mount(remote string, remotePath string, targetPath string, configData strin
 
 	return nil
 }
+
+// Resizing Volume
+func (*nodeServer) NodeExpandVolume(ctx context.Context, req *csi.NodeExpandVolumeRequest) (*csi.NodeExpandVolumeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NodeExpandVolume not implemented")
+}
