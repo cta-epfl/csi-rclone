@@ -2,7 +2,6 @@ package rclone
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -51,7 +50,7 @@ func (ns *nodeServer) NodePublishVolume(ctx context.Context, req *csi.NodePublis
 
 	if !notMnt {
 		// testing original mount point, make sure the mount link is valid
-		if _, err := ioutil.ReadDir(targetPath); err == nil {
+		if _, err := os.ReadDir(targetPath); err == nil {
 			klog.Infof("already mounted to target %s", targetPath)
 			return &csi.NodePublishVolumeResponse{}, nil
 		}
@@ -218,7 +217,7 @@ func getSecret(secretName string) (*v1.Secret, error) {
 
 	secret, e := clientset.CoreV1().
 		Secrets(namespace).
-		Get(secretName, metav1.GetOptions{})
+		Get(context.TODO(), secretName, metav1.GetOptions{})
 
 	if e != nil {
 		return nil, status.Errorf(codes.Internal, "can't load csi-rclone settings from secret %s: %s", secretName, e)
@@ -250,7 +249,7 @@ func Mount(remote string, remotePath string, targetPath string, configData strin
 
 	remoteWithPath := fmt.Sprintf(":%s:%s", remote, remotePath)
 
-	if strings.Contains(configData, "[" + remote + "]") {
+	if strings.Contains(configData, "["+remote+"]") {
 		remoteWithPath = fmt.Sprintf("%s:%s", remote, remotePath)
 		klog.Infof("remote %s found in configData, remoteWithPath set to %s", remote, remoteWithPath)
 	}
@@ -269,7 +268,7 @@ func Mount(remote string, remotePath string, targetPath string, configData strin
 	// and run rclone with --config <tmpfile> flag
 	if configData != "" {
 
-		configFile, err := ioutil.TempFile("", "rclone.conf")
+		configFile, err := os.CreateTemp("", "rclone.conf")
 		if err != nil {
 			return err
 		}
