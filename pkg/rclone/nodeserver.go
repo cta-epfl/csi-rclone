@@ -210,7 +210,7 @@ func getSecret(secretName string) (*v1.Secret, error) {
 
 	namespace, _, err := kubeconfig.Namespace()
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get current namespace, error %s", secretName, err)
+		return nil, status.Errorf(codes.Internal, "can't get current namespace, secretName %s, error %s", secretName, err)
 	}
 
 	klog.Infof("Loading csi-rclone connection defaults from secret %s/%s", namespace, secretName)
