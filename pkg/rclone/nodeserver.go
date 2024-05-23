@@ -15,8 +15,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/kubernetes/pkg/util/mount"
-	"k8s.io/kubernetes/pkg/volume/util"
+	utilexec "k8s.io/utils/exec"
+	"k8s.io/utils/mount"
 
 	csicommon "github.com/kubernetes-csi/drivers/pkg/csi-common"
 )
@@ -59,7 +59,7 @@ func (ns *nodeServer) NodePublishVolume(ctx context.Context, req *csi.NodePublis
 
 		ns.mounter = &mount.SafeFormatAndMount{
 			Interface: mount.New(""),
-			Exec:      mount.NewOsExec(),
+			Exec:      utilexec.New(),
 		}
 
 		if err := ns.mounter.Unmount(targetPath); err != nil {
@@ -163,7 +163,7 @@ func (ns *nodeServer) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpu
 		klog.Infof("Volume not mounted")
 
 	} else {
-		err = util.UnmountPath(req.GetTargetPath(), m)
+		err = mount.CleanupMountPoint(req.GetTargetPath(), m, true)
 		if err != nil {
 			klog.Infof("Error while unmounting path: %s", err)
 			// This will exit and fail the NodeUnpublishVolume making it to retry unmount on the next api schedule trigger.
