@@ -6,7 +6,7 @@ COPY . .
 RUN make plugin
 
 ####
-FROM alpine:3.19
+FROM alpine:3.20
 RUN apk add --no-cache ca-certificates bash fuse3 curl unzip tini
 
 RUN curl https://rclone.org/install.sh | bash
